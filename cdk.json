@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/cdk-ts-medialive-preview-thumbnail-rekognition.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/appDeploy.ts",
   "watch": {
     "include": [
       "**"
