@@ -13,7 +13,9 @@
 - Note: AWS documentation for CloudFormation Parameters in CDK: https://docs.aws.amazon.com/cdk/v2/guide/parameters.html#parameters_use 
 
 ## Manually Test Lambda Function
-### Go to lambda console, select lambda associated with this project, create test event with the shape below 
+- Go to lambda console 
+- select lambda associated with this project 
+- create test event with the shape below 
 
 ```
 {
