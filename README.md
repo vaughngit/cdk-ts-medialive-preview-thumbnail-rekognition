@@ -26,8 +26,16 @@
 }
 ```
 
+## Getting Started with the AWS CDK
+- Prerequisites: All AWS CDK developers, even those working in Python, Java, or C#, need [Node.js](https://nodejs.org/en/download). All supported languages use the same backend, which runs on Node.js. AWS recommends selecting a version in active long-term support. 
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- Install CDK Toolkit 
+`npm install -g aws-cdk`
+
+- Bootstrapping: Deploying stacks with the AWS CDK requires dedicated Amazon S3 buckets and other containers to be available to AWS CloudFormation during deployment. Creating these is called [bootstrapping](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html). 
+`cdk bootstrap `
+
+- The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Other Useful commands
 
