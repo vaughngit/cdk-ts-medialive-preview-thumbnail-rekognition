@@ -13,7 +13,7 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 
 
 export interface IStackProps extends StackProps{
-  thumbnailBucket: IBucket; 
+ // thumbnailBucket: IBucket; 
   topic: sns.ITopic; 
   environment: string; 
   costcenter: string; 
@@ -40,19 +40,6 @@ export class ThumbnailApiStack extends Construct {
         LambdaInlinePolicy: new PolicyDocument({
           assignSids:true,
           statements: [
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              resources: [
-                props.thumbnailBucket.bucketArn,
-                `${props.thumbnailBucket.bucketArn}/*`
-              ],
-              actions: [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:PutObjectAcl",
-                "s3:ListBucket"
-              ],
-            }),
             new PolicyStatement({
               effect: Effect.ALLOW,
               resources: [
