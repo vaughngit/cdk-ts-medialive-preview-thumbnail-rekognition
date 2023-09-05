@@ -37,37 +37,41 @@ async function detectSportEvent(imageBuffer: Buffer, channelId: string) {
       MinConfidence: 70
     };
     const response = await rekognition.detectLabels(params).promise();
+    // Debugging: 
+   // console.log(response)
+
     const labels = response.Labels;
 
     if (labels) {
       let sportsFound = false;
+      let sportsFoundConfidence: number
       for (let i = 0; i < labels.length; i++) {
-        if (labels[i].Name === 'Sport') {
+        if (labels[i].Name === 'Sport' && labels[i].Confidence > 50) {
           sportsFound = true;
+          sportsFoundConfidence = labels[i].Confidence
           break;
         }
       }
       if (sportsFound) {
         console.log("Sporting Event Streaming Detected");
-        const snsResponse = await sendSnsMessage(channelId, "Sporting Event Streaming Detected"); // Send SNS message
+        const snsResponse = await sendSnsMessage(channelId, `Sporting event streaming detected with a ${sportsFoundConfidence!} confidence level.`); 
         const response = {
             statusCode: 200,
             body: JSON.stringify({
                 channelId,
-                //Message: "Sporting Event Streaming Detected"
-                Message: snsResponse, // set SNS response here
+                Message: snsResponse, 
             }),
         };
         return response
 
       } else {
-        console.log('No sporting events detected. Detected labels are: ', labels.map((label: any) => label.Name).join(', '));
+        console.log('No sporting events detected. Detected labels are: ', labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', '));
         const response = {
             statusCode: 200,
             body: JSON.stringify({
                 channelId,
                 Message: 'No sporting events detected. Detected labels are: ',
-                Labels: labels.map((label: any) => label.Name).join(', ')
+                Labels: labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', ')
             }),
         };
         return response

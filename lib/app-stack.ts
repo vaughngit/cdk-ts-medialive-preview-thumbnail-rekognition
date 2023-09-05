@@ -9,6 +9,7 @@ export interface IStackProps extends cdk.StackProps{
   environment: string; 
   costcenter: string; 
   solutionName: string; 
+  cronRate: string; 
 }
 
 export class AppStack extends cdk.Stack {
@@ -24,6 +25,8 @@ export class AppStack extends cdk.Stack {
     const {topic} = new SNSTopicConstruct(this, "sns topic",{snsEmail, ...props })
     const {detectThumbnailLambda} = new ThumbnailApiStack(this, "create thumbnail lambda",{topic, ...props} )
     new EventBridgeStack(this, "Event Bridge Scheduler", {detectThumbnailLambda, topic, channelId, pipelineId, ...props})
+
+
 
     new CfnOutput(this, "SnsTopicName", {value: topic.topicName });  
 

@@ -14,3 +14,5 @@
 
 ### EventBridge Schedule CF Ref[AWS::Scheduler::Schedule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-scheduler-schedule.html)
 
+
+Start medial live channel via media live: `aws medialive start-channel --channel-id 8928898` 

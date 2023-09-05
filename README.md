@@ -6,7 +6,8 @@
 
 * Example: <span style="background-color: blue">Replace parameter values: </span> 
 <br>
-    `cdk deploy --parameters snsEmail=myemail@example.com --parameters channelId=1234567  --parameters pipelineId=0`
+  
+  `cdk deploy --parameters snsEmail=myemail@example.com --parameters channelId=1234567  --parameters pipelineId=0`
 
 - Note: By default, the AWS CDK retains values of parameters from previous deployments and uses them in subsequent deployments if they are not specified explicitly. Use the --no-previous-parameters flag to require all parameters to be specified.
 
