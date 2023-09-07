@@ -30,14 +30,24 @@
 
 
 ## Deploy additional Schedulers:
-
-  - create new scheduler: `aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event-every10min.json docs/response.json --profile dev --region us-west-2`
   
-  - create new scheduler: `aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event-every5businesshours.json docs/response.json --profile dev --region us-west-2`
+- set Region and ChannelId values in environmental variables: 
+    > Change region and channelId to match target environment
+    - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
+    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2"  `
 
-  - create new scheduler: `aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event-weekdayAtHalfHourWithTimezone.json docs/response.json --profile dev --region us-west-2`
+<br>
 
-  - create new scheduler: `aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event-weekdayEvery10minStartEndDate.json docs/response.json --profile dev --region us-west-2`
+- create scheduler that runs every 5 mins during business hours 
+    - ` node .\docs\event_configs\config-every5MinBusinessHours.js  `
+    
+    -  `aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/events/RunEvery5minWeekdays.json docs/events/response.json --profile dev --region us-west-2 `
+ 
+- create scheduler that runs every 10 mins on week days : 
+    - ` node .\docs\event_configs\config-every10minWeekdays.js  `
+
+    - ` aws lambda invoke --function-name "MediaLiveStack-create-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/events/RunEvery10MinWeekdays.json docs/response.json --profile dev --region us-west-2 `
+
 
 
 ## Manually Test Lambda Function
