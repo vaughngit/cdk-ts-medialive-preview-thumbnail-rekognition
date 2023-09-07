@@ -1,0 +1,11 @@
+{
+  "action": "create",
+  "schedulerName": "weekdayAtHalfHour",
+  "cron": "0/5 8-17 ? * MON-FRI *",
+  "channelInfoPayload": {
+    "AWS_REGION": "us-west-2",
+    "ChannelId": "3284674",
+    "PipelineId": "0",
+    "ThumbnailType": "CURRENT_ACTIVE"
+  }
+}

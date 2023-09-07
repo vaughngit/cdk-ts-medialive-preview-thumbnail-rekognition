@@ -7,31 +7,30 @@ import { ITable} from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
 import { Effect, ManagedPolicy, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogLevel, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { EventType, IBucket } from 'aws-cdk-lib/aws-s3';
-import * as sns from 'aws-cdk-lib/aws-sns';
+
 
 
 
 export interface IStackProps extends StackProps{
- // thumbnailBucket: IBucket; 
-  topic: sns.ITopic; 
+  schedulerRole: Role
+  detectThumbnailLambda: NodejsFunction
   environment: string; 
   costcenter: string; 
   solutionName: string; 
 }
 
-export class AiThumbnailReviewer extends Construct {
+export class LambdaInvokeScheduler extends Construct {
 
-  public  readonly detectThumbnailLambda: NodejsFunction
+  public  readonly CreateSchedulerLambda: NodejsFunction
 
   constructor(scope: Construct, id: string, props: IStackProps) {
     super(scope, id);
 
     const { region, account }  = Stack.of(this)
 
-    const DetectThumbnailFunctionRole = new Role(this, `DetectThumbnail-LambdaRole`, {
-      roleName: `${props.solutionName}-detect-thumbnail-${props.environment}`,
-      description: "Detect Thumbnail from image MediaLive via Rekognition",
+    const CreateEventSchedulerFunctionRole = new Role(this, `CreateEventScheduler-LambdaRole`, {
+      roleName: `${props.solutionName}-create-event-scheduler-${props.environment}`,
+      description: "Creates Event Schedulers for MediaLive Channel Reviews",
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole")
@@ -43,6 +42,24 @@ export class AiThumbnailReviewer extends Construct {
             new PolicyStatement({
               effect: Effect.ALLOW,
               resources: [
+                "*"
+              ],
+              actions: [
+                "scheduler:CreateSchedule"
+              ],
+            }),
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              resources: [
+                props.schedulerRole.roleArn
+              ],
+              actions: [
+                "iam:PassRole"
+              ],
+            }),
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              resources: [
                 "arn:aws:logs:*:*:*"
               ],
               actions: [
@@ -51,27 +68,7 @@ export class AiThumbnailReviewer extends Construct {
                 "logs:CreateLogStream"
               ],
             }),
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              resources: ["*"], // replace with appropriate resources
-              actions: [
-                "medialive:describeThumbnails"
-              ],
-            }),
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              resources: [`arn:aws:sns:${region}:${account}:${props.topic.topicName}`], 
-              actions: [
-                "sns:Publish"
-              ],
-            }),
-            new PolicyStatement({ 
-              effect: Effect.ALLOW,
-              resources: ["*"], 
-              actions: [
-                "rekognition:DetectLabels"
-              ],
-            })        
+      
           ],
         })
 
@@ -79,17 +76,18 @@ export class AiThumbnailReviewer extends Construct {
     });
 
 
-      const detectThumbnailLambda = new NodejsFunction(this, 'detector thumbnail lambda', {
-        functionName: `${props.solutionName}-detect-thumbnail-${props.environment}`,
+      const CreateEventSchedulerFunction = new NodejsFunction(this, 'create scheduler lambda', {
+        functionName: `${props.solutionName}-create-scheduler-${props.environment}`,
         runtime: Runtime.NODEJS_14_X,
         memorySize: 1024,
         timeout: Duration.minutes(3),
         handler: 'handler',
-        role: DetectThumbnailFunctionRole, 
-        entry: path.join(__dirname, '../lambda-functions/MediaLiveThumbnailDetector/index.ts' ),
-        depsLockFilePath: path.join(__dirname, '../lambda-functions/MediaLiveThumbnailDetector/package-lock.json'),
+        role: CreateEventSchedulerFunctionRole, 
+        entry: path.join(__dirname, '../lambda-functions/eventbridge_scheduler/index.ts' ),
+        depsLockFilePath: path.join(__dirname, '../lambda-functions/eventbridge_scheduler/package-lock.json'),
         environment: {
-          TopicArn: props.topic.topicArn,
+          SCHEDULE_ROLE_ARN: props.schedulerRole.roleArn,
+          LAMBDA_ARN: props.detectThumbnailLambda.functionArn,
           ENV: props.environment,
           aws_region: region, 
           NODE_OPTIONS: '--enable-source-maps',
@@ -97,7 +95,7 @@ export class AiThumbnailReviewer extends Construct {
         layers: [],
         bundling: { 
           externalModules: ['aws-lambda'],
-          nodeModules: ['aws-sdk'],
+          nodeModules: ['aws-sdk', "@aws-sdk/client-scheduler"],
           target: 'es2020', 
           keepNames: true,
           logLevel: LogLevel.INFO,
@@ -108,9 +106,9 @@ export class AiThumbnailReviewer extends Construct {
         },
       }); 
       
-      detectThumbnailLambda.applyRemovalPolicy(RemovalPolicy.DESTROY);
+      CreateEventSchedulerFunction.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
-      this.detectThumbnailLambda = detectThumbnailLambda
+      //this.detectThumbnailLambda = detectThumbnailLambda
 
 
     Tags.of(this).add("environment", props.environment)

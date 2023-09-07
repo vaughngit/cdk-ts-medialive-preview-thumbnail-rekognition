@@ -1,0 +1,1 @@
+{"statusCode":500,"body":"{\"name\":\"ConflictException\",\"$fault\":\"client\",\"$metadata\":{\"httpStatusCode\":409,\"requestId\":\"930d41f4-21ef-418c-8f4d-79dcb5c6df49\",\"attempts\":1,\"totalRetryDelay\":0},\"message\":\"Schedule weekdayEvery10 already exists.\"}"}

@@ -10,6 +10,7 @@ const sns = new AWS.SNS();
 const medialive = new AWS.MediaLive();
 const rekognition = new AWS.Rekognition();
 
+
 // Function to make the MediaLive API call to describe thumbnails
 async function describeThumbnails(params: any) {
   return new Promise((resolve, reject) => {
@@ -51,45 +52,44 @@ async function detectSportEvent(imageBuffer: Buffer, channelId: string) {
       MinConfidence: 70
     };
     const response = await rekognition.detectLabels(params).promise();
+    // Debugging: 
+   // console.log(response)
 
     const labels = response.Labels;
 
     if (labels) {
       let sportsFound = false;
       let sportsFoundConfidence: number
+
       for (let i = 0; i < labels.length; i++) {
-        if (labels[i].Name === 'Sport' && labels[i].Confidence > 50) {
+        if (labels[i].Name === 'Sport') {
           sportsFound = true;
           sportsFoundConfidence = labels[i].Confidence
-          break;
+
+          let response = {
+            statusCode: 200,
+            channelId,
+            Message: `Sporting event streaming detected with a ${sportsFoundConfidence!} confidence level.`,
+            sportsFound,
+            sportsFoundConfidence,
+            Labels:[] 
+          }
+          return response 
         }
       }
 
-      if (sportsFound) {
-        console.log("Sporting Event Streaming Detected");
-        const snsResponse = await sendSnsMessage(channelId, `Sporting event streaming detected with a ${sportsFoundConfidence!} confidence level.`); 
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify({
-                channelId,
-                Message: snsResponse, 
-            }),
-        };
-        return response
+      //No Sports Events Detected: 
+      let response = {
+        statusCode: 200,
+        sportsFound,
+        sportsFoundConfidence: null,
+        channelId,
+        Message: 'No sporting events detected. Detected labels are: ',
+        Labels: labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', '),
+      };
+     return response
+  } 
 
-      } else {
-        console.log('No sporting events detected. Detected labels are: ', labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', '));
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify({
-                channelId,
-                Message: 'No sporting events detected. Detected labels are: ',
-                Labels: labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', ')
-            }),
-        };
-        return response
-      }
-    }
   } catch (error) {
     console.log('Error occurred while detecting labels', error);
   }
@@ -110,7 +110,7 @@ export const handler: Handler = async (event: any, context: Context, callback: C
     PipelineId,
     ThumbnailType
   };
-  
+
   try {
     // Call MediaLive describeThumbnails() api to retreive the latest thumbnail 
     const data: any = await describeThumbnails(params);
@@ -120,9 +120,31 @@ export const handler: Handler = async (event: any, context: Context, callback: C
     const decodedImage = Buffer.from(thumbnailBody, 'base64');
 
     // Detect sport events using rekognition
-    const response = await detectSportEvent(decodedImage, ChannelId);
+    let response: any = await detectSportEvent(decodedImage, ChannelId);
 
-    callback(null, response);
+    // If Sports Events are detected with high confidence send notification: 
+    if(response && response.sportsFound ===true){
+      if(response.sportsFoundConfidence > 50){
+        const snsResponse = await sendSnsMessage(response.channelId, `Sporting event streaming detected with a ${response.sportsFoundConfidence!} confidence level.`); 
+        response.snsResponse = snsResponse
+       callback(null, JSON.stringify(response));
+
+
+      // If Sports events are detected with low confidence log it out
+      }else{
+        console.log(`Sporting Event Streaming Detected but with low confidence below 50%: ${response.sportsFoundConfidence}`);
+        callback(null, JSON.stringify(response));
+      };
+      
+     // If sports events are not detected log out what is:  
+    } else {
+      console.log('No sporting events detected. Detected labels are: ', response.Labels.map((label: any) => `${label.Name}: ConfidenceLevel=${label.Confidence}`).join(', '));
+      callback(null, JSON.stringify(response));
+    }
+
+
+
+    
   } catch (error) {
     console.log('Error occurred while describing thumbnails', error);
     callback(error);

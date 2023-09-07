@@ -1,9 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as events from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
-import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { CfnParameter, Duration, Stack, StackProps } from 'aws-cdk-lib';
 import { Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { ITopic } from 'aws-cdk-lib/aws-sns';
@@ -23,6 +19,9 @@ export interface IStackProps extends StackProps{
 
 //Consider Splitting this Construct into is own stack to support reuse. 
 export class EventBridgeStack extends Construct {
+
+  public readonly schedulerRole: Role
+
   constructor(scope: Construct, id: string, props: IStackProps) {
     super(scope, id);
 
@@ -57,6 +56,8 @@ export class EventBridgeStack extends Construct {
         })
     }
     })
+  
+    this.schedulerRole = schedulerRole
 
     new cdk.CfnResource(this, "EventBridgeRateScheduler", {
         type: "AWS::Scheduler::Schedule",
