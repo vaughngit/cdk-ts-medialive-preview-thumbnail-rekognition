@@ -11,7 +11,6 @@ export interface IStackProps extends StackProps{
     detectThumbnailLambda: NodejsFunction
     channelId: CfnParameter
     pipelineId: CfnParameter
-    cronRate: string, 
     environment: string; 
     costcenter: string; 
     solutionName: string; 
@@ -27,17 +26,6 @@ export class EventBridgeStack extends Construct {
 
     const { region, account }  = Stack.of(this)
 
-    // Create the payload
-    const channelInfoPayload = {
-      "AWS_REGION": region,
-      "ChannelId": props.channelId.valueAsString,
-      "PipelineId": props.pipelineId.valueAsString,
-      "ThumbnailType": "CURRENT_ACTIVE"
-    };
-
-
-    //crontab guru
-    // https://crontab.guru/
 
     const schedulerRole = new Role(this, "schedulerRole", {
        assumedBy: new ServicePrincipal("scheduler.amazonaws.com"),
@@ -59,13 +47,23 @@ export class EventBridgeStack extends Construct {
   
     this.schedulerRole = schedulerRole
 
+    
+    // Create the payload for the scheduler to send to the thumbnail review lambda
+    const channelInfoPayload = {
+      "AWS_REGION": region,
+      "ChannelId": props.channelId.valueAsString,
+      "PipelineId": props.pipelineId.valueAsString,
+      "ThumbnailType": "CURRENT_ACTIVE"
+    };
+
+
     new cdk.CfnResource(this, "EventBridgeRateScheduler", {
         type: "AWS::Scheduler::Schedule",
         properties: {
          Name: "EventBridgeScheduler",
-         Description: `Runs a lambda every ${props.cronRate} Minute`,
+         Description: `Runs a lambda every 5 Minute`,
          FlexibleTimeWindow: { Mode: "OFF" },   
-         ScheduleExpression: `rate(${props.cronRate} minutes)`,
+         ScheduleExpression: `rate(5 minutes)`, 
          ScheduleExpressionTimezone: "America/Chicago",
          Target: {
            Arn: props.detectThumbnailLambda.functionArn,

@@ -1,5 +1,61 @@
 
-## Types of EventBridge Scheduler: 
+## Deploying Additional Schedulers via the Provided Lambda Function  
+
+- set Region and ChannelId values in environmental variables: 
+    > Change region and channelId to match target environment
+    - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
+    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2"  `
+
+<br>
+
+- First set environment variables: 
+    > Change region and channelId to match target environment
+    - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
+    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2"  `
+
+<br>
+
+- create scheduler that runs every 5 mins during business hours  
+    - create lambda event objects: ` node .\docs\event_configs\config-every5MinBusinessHours.js  `
+    
+    - create scheduler:  `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_EveryHalfHourBusinessHours.json docs/responses/create_EveryHalfHourBusinessHours_response.json --profile dev --region us-west-2 `
+
+    - delete scheduler:  `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_EveryHalfHourBusinessHours.json docs/responses/delete_EveryHalfHourBusinessHours_response.json --profile dev --region us-west-2 `
+ 
+- create scheduler that runs every 10 mins on week days : 
+    - create lambda event objects: ` node .\docs\event_configs\config-every10minWeekdays.js  `
+
+    - create scheduler:  ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_Every10MinsWeekdays.json docs/responses/create_Every10MinsWeekdays_response.json --profile dev --region us-west-2 `
+
+    - delete scheduler: ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_Every10MinsWeekdays.json docs/responses/delete_Every10MinsWeekdays_response.json --profile dev --region us-west-2 `
+
+
+- create scheduler that runs every half-hour on weekends: 
+    - create lambda event objects: ` node .\docs\event_configs\config-everyHalfHourWeekends.js  `
+
+    - create scheduler:  `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_EveryHalfHourWeekends.json docs/responses/create_EveryHalfHourWeekends_response.json --region us-west-2 --profile dev `
+
+    - delete scheduler: `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_EveryHalfHourWeekends.json docs/responses/delete_EveryHalfHourWeekends_response.json --region us-west-2 --profile dev `
+
+- create scheduler that runs every hour from 9-5pm CST Timezone on weekdays: 
+    - create lambda event objects: ` node .\docs\event_configs\config-everyHourFrom9To5CSTWeekdays.js  `
+
+    - create scheduler:  ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_EveryHourFrom9To5CSTWeekdays.json docs/responses/create_EveryHourFrom9To5CSTWeekdays_response.json --profile dev --region us-west-2   `
+
+    - delete scheduler: ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_EveryHourFrom9To5CSTWeekdays.json docs/responses/delete_EveryHourFrom9To5CSTWeekdays_response.json --profile dev --region us-west-2   `
+
+
+- create scheduler that runs this Sunday from 10am-3pm CST an delete on Monday: 
+    - create lambda event objects: ` node .\docs\event_configs\config-thisSunday10To3CstDeleteAfterwards.js  `
+
+    - create scheduler: ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_ThisSunday10To3CstDeleteAfterwards.json docs/responses/create_ThisSunday10To3CstDeleteAfterwards_response.json --profile dev --region us-west-2   `
+
+    - delete scheduler: ` aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_ThisSunday10To3CstDeleteAfterwards.json docs/responses/delete_ThisSunday10To3CstDeleteAfterwards_response.json --profile dev --region us-west-2   `
+
+
+
+## Additional Information and Reference for EventBridge Scheduler: 
+
 ### Schedule types on EventBridge Scheduler(https://docs.aws.amazon.com/scheduler/latest/UserGuide/schedule-types.html)
 - Rate-based schedules
 - Cron-based schedules

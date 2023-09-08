@@ -10,7 +10,6 @@ export interface IStackProps extends cdk.StackProps{
   environment: string; 
   costcenter: string; 
   solutionName: string; 
-  cronRate: string; 
 }
 
 export class AppStack extends cdk.Stack {
