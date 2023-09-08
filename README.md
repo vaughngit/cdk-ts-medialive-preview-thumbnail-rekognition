@@ -37,6 +37,8 @@
 
 
 ## Deploy Additional Schedulers:
+  - You do not need to deploy this solutions multiple times to monitor additional MediaLive Channels. Simple create additional custom schedules to leverage this solution on multiple MediaLive Channels, invoke monitoring on a different time interval. 
+  
   - see instructions [here](./docs/Notes.md)
 
 
