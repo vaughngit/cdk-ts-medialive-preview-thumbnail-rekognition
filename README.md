@@ -31,16 +31,16 @@
     > Update the snsEmail and channelId parameter values to reflect your environment: 
   
     - ` cdk deploy --parameters snsEmail=myemail@example.com --parameters channelId=1234567  --parameters pipelineId=0 `
-      > The specified email will receive a SNS Subscription Confirmation email upon successful deployment. Be sure to click the confirmation link in the email to receive notifications. 
+      > The specified email will receive a SNS Subscription Confirmation email upon successful deployment. Be sure to click the confirmation link in the email to receive notifications from the solution when a sports streaming event is detected. 
 
     > For more information on parameters see AWS documentation for [CloudFormation Parameters](https://docs.aws.amazon.com/cdk/v2/guide/parameters.html#parameters_use) in CDK: 
 
 
-## Deploy additional Schedulers:
+## Deploy Additional Schedulers:
   - see instructions [here](./docs/Notes.md)
 
 
-## Clean up Instructions
+## Clean Up Instructions
 
   - Delete all resources created by the CDK Project
     - `cdk destroy `
