@@ -1,6 +1,8 @@
 
 ## Deploying Additional Schedulers via the Provided Lambda Function  
 
+> The examples below assume your project is deployed to us-west-2 and that your are making use of aws cli [profiles feature](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). Simply update the region specified and/or remove the command line switches for profile and region to fall back to the AWS default settings. 
+
 - set Region and ChannelId values in environmental variables: 
     > Change region and channelId to match target environment
     - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
