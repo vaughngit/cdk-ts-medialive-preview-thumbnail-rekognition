@@ -41,7 +41,7 @@ export const handler = async (event: Event) => {
           await schedulerClient.send(new DeleteScheduleCommand({ Name: event.schedulerName }));
           return {
             statusCode: 200,
-            body: "Scheduler deleted",
+            body: `${event.schedulerName} Scheduler deleted`,
           };
         } catch (error) {
           console.log("error", error);

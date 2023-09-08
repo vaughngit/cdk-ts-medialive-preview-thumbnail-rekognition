@@ -6,3 +6,10 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# Ignore the outputs in these directories
+event_objects
+responses
+
+# Dont ignore the config files in this directory: 
+!*/event_configs/*

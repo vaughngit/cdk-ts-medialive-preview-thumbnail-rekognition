@@ -28,8 +28,8 @@ export class LambdaInvokeScheduler extends Construct {
 
     const { region, account }  = Stack.of(this)
 
-    const CreateEventSchedulerFunctionRole = new Role(this, `CreateEventScheduler-LambdaRole`, {
-      roleName: `${props.solutionName}-create-event-scheduler-${props.environment}`,
+    const CreateEventSchedulerFunctionRole = new Role(this, `EventScheduler-LambdaRole`, {
+      roleName: `${props.solutionName}-event-scheduler-role-${props.environment}`,
       description: "Creates Event Schedulers for MediaLive Channel Reviews",
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
@@ -42,10 +42,11 @@ export class LambdaInvokeScheduler extends Construct {
             new PolicyStatement({
               effect: Effect.ALLOW,
               resources: [
-                "*"
+                `arn:aws:scheduler:${region}:${account}:schedule/*`
               ],
               actions: [
-                "scheduler:CreateSchedule"
+                "scheduler:CreateSchedule",
+                "scheduler:DeleteSchedule"
               ],
             }),
             new PolicyStatement({
@@ -77,7 +78,7 @@ export class LambdaInvokeScheduler extends Construct {
 
 
       const CreateEventSchedulerFunction = new NodejsFunction(this, 'create scheduler lambda', {
-        functionName: `${props.solutionName}-create-scheduler-${props.environment}`,
+        functionName: `${props.solutionName}-scheduler-${props.environment}`,
         runtime: Runtime.NODEJS_14_X,
         memorySize: 1024,
         timeout: Duration.minutes(3),
