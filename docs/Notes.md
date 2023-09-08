@@ -3,26 +3,25 @@
 
 > The examples below assume your project is deployed to us-west-2 and that your are making use of aws cli [profiles feature](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). Simply update the region specified and/or remove the command line switches for profile and region to fall back to the AWS CLI default configuration. 
 
-- set Region and ChannelId values in environmental variables: 
-    > Change region and channelId to match target environment
-    - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
-    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2"  `
 
 <br>
 
 - First set environment variables: 
     > Change region and channelId to match target environment
     - Linux: ` set AWS_REGION=us-west-2 && set ChannelId=5204063 `
-    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2"  `
+    - Windows: ` $Env:ChannelId=3284674 ; $Env:AWS_REGION="us-west-2  `
 
 <br>
 
 - create scheduler that runs every 5 mins during business hours  
     - create lambda event objects: ` node .\docs\event_configs\config-every5MinBusinessHours.js  `
+        > Creates to lambda event objects in the path ./docs/events_object/ that we will use to invoke the lambda via the following commands:
     
     - create scheduler:  `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/create_EveryHalfHourBusinessHours.json docs/responses/create_EveryHalfHourBusinessHours_response.json --profile dev --region us-west-2 `
 
     - delete scheduler:  `aws lambda invoke --function-name "MediaLiveStack-scheduler-dev" --cli-binary-format raw-in-base64-out --payload file://docs/event_objects/delete_EveryHalfHourBusinessHours.json docs/responses/delete_EveryHalfHourBusinessHours_response.json --profile dev --region us-west-2 `
+
+        > Both commands above output the lambda response to a corresponding file the path ./docs/responses/ which enables you to verify a 200 response was returned, indicating the create or delete scheduler action was successful.  
  
 - create scheduler that runs every 10 mins on week days : 
     - create lambda event objects: ` node .\docs\event_configs\config-every10minWeekdays.js  `

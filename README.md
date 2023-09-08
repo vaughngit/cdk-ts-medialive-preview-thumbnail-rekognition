@@ -18,12 +18,20 @@
 ## Deploy this Solution:  
   > Note: This solution assumes an active MediaLive Channel is running 
 
+  - Clone with repo to your local compute system: 
+    - `git clone https://github.com/vaughngit/cdk-ts-medialive-preview-thumbnail-rekognition.git`
+
+  - Navigate to the root of the directory:
+    - ` cd cdk-ts-medialive-preview-thumbnail-rekognition\`
+
+  - Install the project binaries
+    - `npm install`
+
   - Deploy the solution to your AWS account
     > Update the snsEmail and channelId parameter values to reflect your environment: 
-<br>
   
-  - ` cdk deploy --parameters snsEmail=myemail@example.com --parameters channelId=1234567  --parameters pipelineId=0 `
-    > The specified email will receive a SNS Subscription Confirmation email upon successful deployment. Be sure to click the confirmation link in the email to receive notifications. 
+    - ` cdk deploy --parameters snsEmail=myemail@example.com --parameters channelId=1234567  --parameters pipelineId=0 `
+      > The specified email will receive a SNS Subscription Confirmation email upon successful deployment. Be sure to click the confirmation link in the email to receive notifications. 
 
     > For more information on parameters see AWS documentation for [CloudFormation Parameters](https://docs.aws.amazon.com/cdk/v2/guide/parameters.html#parameters_use) in CDK: 
 
