@@ -36,8 +36,8 @@
     > For more information on parameters see AWS documentation for [CloudFormation Parameters](https://docs.aws.amazon.com/cdk/v2/guide/parameters.html#parameters_use) in CDK: 
 
 
-## Deploy Additional Schedulers:
-  - You do not need to deploy this solutions multiple times to monitor additional MediaLive Channels. Simple create additional custom schedules to leverage this solution on multiple MediaLive Channels, invoke monitoring on a different time interval. 
+## Create Additional Schedulers:
+  - You do not need to deploy this solution multiple times to monitor additional MediaLive Channels or modify the scheduler. Simply create additional custom schedules to leverage this solution on multiple MediaLive Channels and invoke monitoring at different time intervals. 
   
   - see instructions [here](./docs/Notes.md)
 
