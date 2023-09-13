@@ -112,14 +112,14 @@ export const handler: Handler = async (event: any, context: Context, callback: C
   };
   
   try {
-    // Call MediaLive describeThumbnails() api to retreive the latest thumbnail 
+    // 1. Call MediaLive describeThumbnails() api to retreive the latest thumbnail 
     const data: any = await describeThumbnails(params);
     const thumbnailBody = data.ThumbnailDetails[0].Thumbnails[0].Body;
 
-    //Use the built-in Buffer class to decode the binary data into an image
+    //2. Use the built-in Buffer class to decode the binary data into an image
     const decodedImage = Buffer.from(thumbnailBody, 'base64');
 
-    // Detect sport events using rekognition
+    //3. Detect sport events using rekognition
     const response = await detectSportEvent(decodedImage, ChannelId);
 
     callback(null, response);
