@@ -41,7 +41,7 @@ async function sendSnsMessage(channelId: string, message: string) {
 }
 
 // Function to detect sporting events using rekognition
-async function detectSportEvent(imageBuffer: Buffer, channelId: string) {
+async function detectUnauthorizedContent(imageBuffer: Buffer, channelId: string): Promise<{ statusCode: number; body: string; } | undefined> {
   try {
     const params = {
       Image: {
@@ -55,19 +55,19 @@ async function detectSportEvent(imageBuffer: Buffer, channelId: string) {
     const labels = response.Labels;
 
     if (labels) {
-      let sportsFound = false;
-      let sportsFoundConfidence: number
+      let unauthorizedContent = false;
+      let unauthorizedContentConfidenceScore: number
       for (let i = 0; i < labels.length; i++) {
-        if (labels[i].Name === 'Sport' && labels[i].Confidence > 50) {
-          sportsFound = true;
-          sportsFoundConfidence = labels[i].Confidence
+        if (labels[i].Name === 'Sport' && labels[i].Confidence > 90) {
+          unauthorizedContent = true;
+          unauthorizedContentConfidenceScore = labels[i].Confidence
           break;
         }
       }
 
-      if (sportsFound) {
+      if (unauthorizedContent) {
         console.log("Sporting Event Streaming Detected");
-        const snsResponse = await sendSnsMessage(channelId, `Sporting event streaming detected with a ${sportsFoundConfidence!} confidence level.`); 
+        const snsResponse = await sendSnsMessage(channelId, `Sporting event streaming detected with a ${unauthorizedContentConfidenceScore!} confidence level.`); 
         const response = {
             statusCode: 200,
             body: JSON.stringify({
@@ -122,7 +122,7 @@ export const handler: Handler = async (event: any, context: Context, callback: C
     
 
     //3. Detect sport events using rekognition
-    const response = await detectSportEvent(decodedImage, ChannelId);
+    const response = await detectUnauthorizedContent(decodedImage, ChannelId);
 
     callback(null, response);
   } catch (error) {
