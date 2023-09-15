@@ -112,9 +112,16 @@ export const handler: Handler = async (event: any, context: Context, callback: C
   };
   
   try {
+
+    let response: object | undefined
+
     // 1. Call MediaLive describeThumbnails() api to retrieve the latest thumbnail 
     const data: any = await describeThumbnails(params);
-    const thumbnailBody = data.ThumbnailDetails[0].Thumbnails[0].Body;
+    
+
+    if(data.ThumbnailDetails.length < 0 ){
+
+    const thumbnailBody = data.ThumbnailDetails[0].Thumbnails[0].Body 
 
     //2. Use the built-in Buffer class to decode the binary data into an image
     const decodedImage = Buffer.from(thumbnailBody, 'base64');
@@ -122,7 +129,17 @@ export const handler: Handler = async (event: any, context: Context, callback: C
     
 
     //3. Detect sport events using rekognition
-    const response = await detectUnauthorizedContent(decodedImage, ChannelId);
+      response = await detectUnauthorizedContent(decodedImage, ChannelId);
+
+    }else {
+      console.log('No Thumbnail found... check channel status');
+      response = {
+        statusCode: 200,
+        body: JSON.stringify({
+            Message: "No Thumbnail found... check channel status", 
+        }),
+      };
+  }
 
     callback(null, response);
   } catch (error) {
