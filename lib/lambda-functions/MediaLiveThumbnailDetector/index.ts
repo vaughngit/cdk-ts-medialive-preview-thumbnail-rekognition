@@ -118,8 +118,11 @@ export const handler: Handler = async (event: any, context: Context, callback: C
     // 1. Call MediaLive describeThumbnails() api to retrieve the latest thumbnail 
     const data: any = await describeThumbnails(params);
     
+    //console.log("data object: ",JSON.stringify(data, null, 2))
 
-    if(data.ThumbnailDetails.length < 0 ){
+    //console.log("thumbnails length ",data.ThumbnailDetails.length)
+
+    if(data.ThumbnailDetails.length > 0 ){
 
     const thumbnailBody = data.ThumbnailDetails[0].Thumbnails[0].Body 
 
