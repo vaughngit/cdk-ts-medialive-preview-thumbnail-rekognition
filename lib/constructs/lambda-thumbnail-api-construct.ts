@@ -10,14 +10,15 @@ import { LogLevel, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-
 import { EventType, IBucket } from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { NagSuppressions } from 'cdk-nag'
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 
 export interface IStackProps extends StackProps{
- // thumbnailBucket: IBucket; 
   topic: sns.ITopic; 
+  kmsKey: Key; 
   environment: string; 
   costcenter: string; 
-  solutionName: string; 
+  solutionName: string;  
 }
 
 export class AiThumbnailReviewer extends Construct {
@@ -75,7 +76,17 @@ export class AiThumbnailReviewer extends Construct {
               actions: [
                 "rekognition:DetectLabels"
               ],
-            })        
+            }),
+            new PolicyStatement({ 
+              effect: Effect.ALLOW,
+              resources: [
+                props.kmsKey.keyArn
+              ], 
+              actions: [
+                "kms:GenerateDataKey",
+                "kms:Decrypt"
+              ],
+            })         
           ],
         })
 
@@ -105,7 +116,7 @@ export class AiThumbnailReviewer extends Construct {
 
       const detectThumbnailLambda = new NodejsFunction(this, 'detector thumbnail lambda', {
         functionName: `${props.solutionName}-detect-thumbnail-${props.environment}`,
-        runtime: Runtime.NODEJS_14_X,
+        runtime: Runtime.NODEJS_18_X,
         memorySize: 1024,
         timeout: Duration.minutes(3),
         handler: 'handler',

@@ -22,8 +22,8 @@ export class AppStack extends cdk.Stack {
     const channelId = new CfnParameter(this, 'channelId');
     const pipelineId = new CfnParameter(this, 'pipelineId');
 
-    const {topic} = new SNSTopicConstruct(this, "sns topic",{snsEmail, ...props })
-    const {detectThumbnailLambda} = new AiThumbnailReviewer(this, "review medialive thumbnail lambda",{topic, ...props} )
+    const {topic, kmsKey} = new SNSTopicConstruct(this, "sns topic",{snsEmail, ...props })
+    const {detectThumbnailLambda} = new AiThumbnailReviewer(this, "review medialive thumbnail lambda",{topic,kmsKey, ...props} )
     const {schedulerRole} = new EventBridgeStack(this, "Event Bridge Scheduler", {detectThumbnailLambda, topic, channelId, pipelineId, ...props})
     new LambdaInvokeScheduler(this, "create scheduler lambda", {detectThumbnailLambda, schedulerRole, ...props})
 

@@ -7,7 +7,7 @@ import { ITable} from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
 import { Effect, ManagedPolicy, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogLevel, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
-
+import { NagSuppressions } from 'cdk-nag'
 
 
 
@@ -76,10 +76,29 @@ export class LambdaInvokeScheduler extends Construct {
       }
     });
 
+    NagSuppressions.addResourceSuppressions(
+      CreateEventSchedulerFunctionRole,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason: 'Needs access to write to CloudWatch Logs'
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason: `
+          Solution demonstrates provisioning a specific lambda function access to:
+          1) Create an event scheduler within the solution account and region  
+          2) Create and record logs within the CloudWatch service
+          `
+        },
+      ],
+      true
+    );
+
 
       const CreateEventSchedulerFunction = new NodejsFunction(this, 'create scheduler lambda', {
         functionName: `${props.solutionName}-scheduler-${props.environment}`,
-        runtime: Runtime.NODEJS_14_X,
+        runtime: Runtime.NODEJS_18_X,
         memorySize: 1024,
         timeout: Duration.minutes(3),
         handler: 'handler',

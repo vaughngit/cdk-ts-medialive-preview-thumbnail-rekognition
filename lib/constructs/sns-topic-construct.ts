@@ -16,12 +16,10 @@ interface IStackProps extends StackProps {
 export class SNSTopicConstruct extends Construct {
 
   public readonly topic: sns.ITopic; 
-
+  public readonly kmsKey: Key; 
 
   constructor(scope: Construct, id: string, props: IStackProps) {
     super(scope, id);
-
-    const { region, account }  = Stack.of(this)
 
     const snsEncryptionKey = new Key(this, 'TopicKMSKey',{enableKeyRotation: true});
 
@@ -40,7 +38,7 @@ export class SNSTopicConstruct extends Construct {
       //snsTopic.addSubscription(new LambdaSubscription(myFunction));
   
       this.topic = snsTopic 
-
+      this.kmsKey = snsEncryptionKey
    
      
     Tags.of(this).add("environment", props.environment)
