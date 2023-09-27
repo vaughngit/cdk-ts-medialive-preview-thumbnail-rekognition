@@ -3,6 +3,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import {Construct} from 'constructs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { EmailSubscription, LambdaSubscription, UrlSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 
 interface IStackProps extends StackProps {
@@ -22,10 +23,12 @@ export class SNSTopicConstruct extends Construct {
 
     const { region, account }  = Stack.of(this)
 
+    const snsEncryptionKey = new Key(this, 'TopicKMSKey',{enableKeyRotation: true});
 
-    const snsTopic = new sns.Topic(this, 'CdkTsMedialiveThumbnailRekognitionTopic', {
+    const snsTopic = new sns.Topic(this, 'MedialiveThumbnailRekognitionTopic', {
         topicName: "MediaLiveThumbnailPreview",
-        displayName: "Media Live Thumbnail Sports Event Detector"
+        displayName: "Media Live Thumbnail Sports Event Detector",
+        masterKey: snsEncryptionKey
       });
 
       
