@@ -9,7 +9,7 @@ import { Effect, ManagedPolicy, Policy, PolicyDocument, PolicyStatement, Role, S
 import { LogLevel, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { EventType, IBucket } from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
-
+import { NagSuppressions } from 'cdk-nag'
 
 
 export interface IStackProps extends StackProps{
@@ -53,21 +53,25 @@ export class AiThumbnailReviewer extends Construct {
             }),
             new PolicyStatement({
               effect: Effect.ALLOW,
-              resources: ["*"], // replace with appropriate resources
-              actions: [
-                "medialive:describeThumbnails"
-              ],
-            }),
-            new PolicyStatement({
-              effect: Effect.ALLOW,
               resources: [`arn:aws:sns:${region}:${account}:${props.topic.topicName}`], 
               actions: [
                 "sns:Publish"
               ],
             }),
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              resources: [
+                "arn:aws:medialive:*:*:channel:*"
+              ], 
+              actions: [
+                "medialive:DescribeThumbnails"
+              ],
+            }),
             new PolicyStatement({ 
               effect: Effect.ALLOW,
-              resources: ["*"], 
+              resources: [
+                `*`
+              ], 
               actions: [
                 "rekognition:DetectLabels"
               ],
@@ -77,6 +81,26 @@ export class AiThumbnailReviewer extends Construct {
 
       }
     });
+
+    NagSuppressions.addResourceSuppressions(
+      DetectThumbnailFunctionRole,
+      [
+        {
+          id: 'AwsSolutions-IAM4',
+          reason: 'Needs access to write to CloudWatch Logs'
+        },
+        {
+          id: 'AwsSolutions-IAM5',
+          reason: `
+          Solution demonstrates provisioning a specific lambda function access to:
+          1) Describe the thumbnail previews of any MediaLIve channel 
+          2) Performing image detection via the Amazon Rekognition DetectLabels action which does not need resource-level permissions
+          https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonrekognition.html#amazonrekognition-actions-as-permissions
+          `
+        },
+      ],
+      true
+    );
 
 
       const detectThumbnailLambda = new NodejsFunction(this, 'detector thumbnail lambda', {
