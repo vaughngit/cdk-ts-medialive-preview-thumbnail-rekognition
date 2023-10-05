@@ -14,10 +14,11 @@ using AWS chargeable resources, such as running Amazon EC2 instances or using Am
 import * as cdk from 'aws-cdk-lib';
 import { CfnOutput, CfnParameter } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AiThumbnailReviewer} from './constructs/lambda-thumbnail-api-construct'
+import { AiThumbnailReviewer} from './constructs/lambda-thumbnail-reviewer-construct'
 import { SNSTopicConstruct } from './constructs/sns-topic-construct';
 import { EventBridgeStack } from './constructs/eventbridge-scheduled-task-construct';
-import {LambdaInvokeScheduler} from './constructs/lambda-invoke-scheduler'
+import {LambdaCreateScheduler} from './constructs/lambda-create-scheduler'
+import { KmsKeyConstruct } from './constructs/kms-key-construct';
 
 export interface IStackProps extends cdk.StackProps{
   environment: string; 
@@ -35,11 +36,11 @@ export class AppStack extends cdk.Stack {
     const channelId = new CfnParameter(this, 'channelId');
     const pipelineId = new CfnParameter(this, 'pipelineId');
 
-    const {topic, kmsKey} = new SNSTopicConstruct(this, "sns topic",{snsEmail, ...props })
+    const {kmsKey} = new KmsKeyConstruct(this, "kms key", props)
+    const {topic} = new SNSTopicConstruct(this, "sns topic",{snsEmail, kmsKey, ...props })
     const {detectThumbnailLambda} = new AiThumbnailReviewer(this, "review medialive thumbnail lambda",{topic,kmsKey, ...props} )
-    const {schedulerRole} = new EventBridgeStack(this, "Event Bridge Scheduler", {detectThumbnailLambda, topic, channelId, pipelineId, ...props})
-    new LambdaInvokeScheduler(this, "create scheduler lambda", {detectThumbnailLambda, schedulerRole, ...props})
-
+    const {schedulerRole} = new EventBridgeStack(this, "Event Bridge Scheduler", {detectThumbnailLambda, topic, channelId, pipelineId,kmsKey, ...props})
+    new LambdaCreateScheduler(this, "create scheduler lambda", {detectThumbnailLambda, schedulerRole, kmsKey, ...props})
 
     new CfnOutput(this, "SnsTopicName", {value: topic.topicName });  
 

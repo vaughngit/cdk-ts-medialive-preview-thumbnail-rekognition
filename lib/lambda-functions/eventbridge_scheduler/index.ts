@@ -28,8 +28,9 @@ export const handler = async (event: Event) => {
             FlexibleTimeWindow: {
                 Mode: "OFF",
               },
-              ActionAfterCompletion: "DELETE",
-              ScheduleExpression: `cron(${event.cron})`,
+            ActionAfterCompletion: "DELETE",
+            ScheduleExpression: `cron(${event.cron})`,
+            KmsKeyArn : process.env.kmsKeyArn,
             Target: {
               RoleArn: process.env.SCHEDULE_ROLE_ARN,
               Arn: process.env.LAMBDA_ARN,

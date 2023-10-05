@@ -17,9 +17,10 @@ import { CfnParameter, Stack, StackProps } from 'aws-cdk-lib';
 import { Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { ITopic } from 'aws-cdk-lib/aws-sns';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 export interface IStackProps extends StackProps{
-
+    kmsKey: Key;
     topic: ITopic; 
     detectThumbnailLambda: NodejsFunction
     channelId: CfnParameter
@@ -52,7 +53,17 @@ export class EventBridgeStack extends Construct {
               actions: [
                 "lambda:InvokeFunction"
               ],
-            }),        
+            }),
+            new PolicyStatement({ 
+              effect: Effect.ALLOW,
+              resources: [
+                props.kmsKey.keyArn
+              ], 
+              actions: [
+                "kms:GenerateDataKey",
+                "kms:Decrypt"
+              ],
+            })                 
           ],
         })
     }
@@ -70,6 +81,8 @@ export class EventBridgeStack extends Construct {
     };
 
 
+    //The specification for the AWS::Scheduler::Schedule is found in the link below
+    //https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-scheduler-schedule.html
     new cdk.CfnResource(this, "EventBridgeRateScheduler", {
         type: "AWS::Scheduler::Schedule",
         properties: {
@@ -78,6 +91,7 @@ export class EventBridgeStack extends Construct {
          FlexibleTimeWindow: { Mode: "OFF" },   
          ScheduleExpression: `rate(5 minutes)`, 
          ScheduleExpressionTimezone: "America/Chicago",
+         KmsKeyArn : props.kmsKey.keyArn,
          Target: {
            Arn: props.detectThumbnailLambda.functionArn,
            RoleArn: schedulerRole.roleArn,

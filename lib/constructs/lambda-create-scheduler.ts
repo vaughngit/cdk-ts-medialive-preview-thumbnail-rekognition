@@ -15,12 +15,14 @@ import { Stack, StackProps, RemovalPolicy, Tags, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Runtime  } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
-import { Effect, ManagedPolicy, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Effect, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogLevel, NodejsFunction, SourceMapMode } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { NagSuppressions } from 'cdk-nag'
+import { Key } from 'aws-cdk-lib/aws-kms';
 
 
 export interface IStackProps extends StackProps{
+  kmsKey: Key; 
   schedulerRole: Role
   detectThumbnailLambda: NodejsFunction
   environment: string; 
@@ -28,7 +30,7 @@ export interface IStackProps extends StackProps{
   solutionName: string; 
 }
 
-export class LambdaInvokeScheduler extends Construct {
+export class LambdaCreateScheduler extends Construct {
 
   public  readonly CreateSchedulerLambda: NodejsFunction
 
@@ -118,6 +120,7 @@ export class LambdaInvokeScheduler extends Construct {
           SCHEDULE_ROLE_ARN: props.schedulerRole.roleArn,
           LAMBDA_ARN: props.detectThumbnailLambda.functionArn,
           ENV: props.environment,
+          kmsKeyArn: props.kmsKey.keyArn, 
           aws_region: region, 
           NODE_OPTIONS: '--enable-source-maps',
         },
