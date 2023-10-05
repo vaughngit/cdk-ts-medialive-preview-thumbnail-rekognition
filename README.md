@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT-0
 
 # MediaLive Thumbnail Detection with Rekognition 
 
+![Multi-Tenant Application Architecture](docs/mediaLiveThumbnailRekognition.drawio.png)
 
 ## Getting Started with the AWS CDK
 - Prerequisites: 
