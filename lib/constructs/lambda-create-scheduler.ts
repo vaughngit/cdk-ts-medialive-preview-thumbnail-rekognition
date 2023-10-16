@@ -39,6 +39,7 @@ export class LambdaCreateScheduler extends Construct {
 
     const { region, account }  = Stack.of(this)
 
+    /* The permissions of this example role should be further scoped as applicable to align with the principals of least privilege */
     const CreateEventSchedulerFunctionRole = new Role(this, `EventScheduler-LambdaRole`, {
       roleName: `${props.solutionName}-event-scheduler-role-${props.environment}`,
       description: "Creates Event Schedulers for MediaLive Channel Reviews",

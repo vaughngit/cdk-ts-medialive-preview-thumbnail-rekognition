@@ -39,6 +39,7 @@ export class AiThumbnailReviewer extends Construct {
 
     const { region, account }  = Stack.of(this)
 
+    /* The permissions of this example role should be further scoped as applicable to align with the principals of least privilege */
     const DetectThumbnailFunctionRole = new Role(this, `DetectThumbnail-LambdaRole`, {
       roleName: `${props.solutionName}-detect-thumbnail-${props.environment}`,
       description: "Detect Thumbnail from image MediaLive via Rekognition",
@@ -122,7 +123,6 @@ export class AiThumbnailReviewer extends Construct {
       true
     );
 
-
       const detectThumbnailLambda = new NodejsFunction(this, 'detector thumbnail lambda', {
         functionName: `${props.solutionName}-detect-thumbnail-${props.environment}`,
         runtime: Runtime.NODEJS_18_X,
@@ -155,7 +155,6 @@ export class AiThumbnailReviewer extends Construct {
       detectThumbnailLambda.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
       this.detectThumbnailLambda = detectThumbnailLambda
-
 
     Tags.of(this).add("environment", props.environment)
     Tags.of(this).add("solution", props.solutionName)

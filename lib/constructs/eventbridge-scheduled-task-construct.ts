@@ -38,9 +38,9 @@ export class EventBridgeStack extends Construct {
   constructor(scope: Construct, id: string, props: IStackProps) {
     super(scope, id);
 
-    const { region, account }  = Stack.of(this)
+    const { region }  = Stack.of(this)
 
-
+    /* The permissions of this example role should be further scoped as applicable to align with the principals of least privilege */
     const schedulerRole = new Role(this, "schedulerRole", {
        assumedBy: new ServicePrincipal("scheduler.amazonaws.com"),
        inlinePolicies:  {
