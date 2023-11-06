@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT-0",
   "dependencies": {
     "@aws-sdk/client-scheduler": "^3.405.0",
     "aws-sdk": "^2.1452.0",
